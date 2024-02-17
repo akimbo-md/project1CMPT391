@@ -30,8 +30,6 @@
         {
             tabControl1 = new TabControl();
             tabPageMyCourses = new TabPage();
-            closeButton = new Button();
-            courseInfoLabel = new Label();
             viewCourseButton = new Button();
             MyCoursesHeading = new Label();
             listBox1 = new ListBox();
@@ -48,6 +46,7 @@
             comboBoxSemester = new ComboBox();
             comboBoxYear = new ComboBox();
             applyFilter = new Button();
+            dropClassButton = new Button();
             tabControl1.SuspendLayout();
             tabPageMyCourses.SuspendLayout();
             tabPageSearch.SuspendLayout();
@@ -70,8 +69,7 @@
             // 
             // tabPageMyCourses
             // 
-            tabPageMyCourses.Controls.Add(closeButton);
-            tabPageMyCourses.Controls.Add(courseInfoLabel);
+            tabPageMyCourses.Controls.Add(dropClassButton);
             tabPageMyCourses.Controls.Add(viewCourseButton);
             tabPageMyCourses.Controls.Add(MyCoursesHeading);
             tabPageMyCourses.Controls.Add(listBox1);
@@ -83,35 +81,13 @@
             tabPageMyCourses.Text = "My Courses";
             tabPageMyCourses.UseVisualStyleBackColor = true;
             // 
-            // closeButton
-            // 
-            closeButton.Location = new Point(672, 6);
-            closeButton.Margin = new Padding(2, 1, 2, 1);
-            closeButton.Name = "closeButton";
-            closeButton.Size = new Size(81, 22);
-            closeButton.TabIndex = 5;
-            closeButton.Text = "Close";
-            closeButton.UseVisualStyleBackColor = true;
-            closeButton.Visible = false;
-            closeButton.Click += closeButton_Click;
-            // 
-            // courseInfoLabel
-            // 
-            courseInfoLabel.AutoSize = true;
-            courseInfoLabel.Location = new Point(702, 34);
-            courseInfoLabel.Name = "courseInfoLabel";
-            courseInfoLabel.Size = new Size(38, 15);
-            courseInfoLabel.TabIndex = 3;
-            courseInfoLabel.Text = "label1";
-            courseInfoLabel.UseWaitCursor = true;
-            // 
             // viewCourseButton
             // 
-            viewCourseButton.Location = new Point(603, 303);
+            viewCourseButton.Location = new Point(629, 303);
             viewCourseButton.Name = "viewCourseButton";
-            viewCourseButton.Size = new Size(150, 95);
+            viewCourseButton.Size = new Size(123, 95);
             viewCourseButton.TabIndex = 2;
-            viewCourseButton.Text = "View Course Details";
+            viewCourseButton.Text = "View Details";
             viewCourseButton.UseVisualStyleBackColor = true;
             viewCourseButton.Click += viewCourseButton_Click;
             // 
@@ -123,6 +99,7 @@
             MyCoursesHeading.Size = new Size(208, 15);
             MyCoursesHeading.TabIndex = 1;
             MyCoursesHeading.Text = "Course ID | Section ID | Semester | Year";
+            MyCoursesHeading.Click += MyCoursesHeading_Click;
             // 
             // listBox1
             // 
@@ -130,10 +107,10 @@
             listBox1.HorizontalScrollbar = true;
             listBox1.ItemHeight = 15;
             listBox1.Items.AddRange(new object[] { "" });
-            listBox1.Location = new Point(4, 34);
+            listBox1.Location = new Point(4, 49);
             listBox1.Margin = new Padding(4);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(592, 364);
+            listBox1.Size = new Size(750, 349);
             listBox1.TabIndex = 0;
             listBox1.SelectedIndexChanged += listBox1_SelectedIndexChanged;
             // 
@@ -155,7 +132,7 @@
             // 
             searchButton.BackColor = Color.Silver;
             searchButton.FlatAppearance.BorderColor = Color.Silver;
-            searchButton.Location = new Point(531, 8);
+            searchButton.Location = new Point(531, 3);
             searchButton.Name = "searchButton";
             searchButton.Size = new Size(103, 29);
             searchButton.TabIndex = 2;
@@ -165,10 +142,10 @@
             // 
             // addToCart
             // 
-            addToCart.Location = new Point(639, 8);
+            addToCart.Location = new Point(630, 7);
             addToCart.Margin = new Padding(2);
             addToCart.Name = "addToCart";
-            addToCart.Size = new Size(106, 29);
+            addToCart.Size = new Size(123, 39);
             addToCart.TabIndex = 9;
             addToCart.Text = "Add to Cart";
             addToCart.UseVisualStyleBackColor = true;
@@ -176,7 +153,7 @@
             // 
             // searchTextBox
             // 
-            searchTextBox.Location = new Point(3, 12);
+            searchTextBox.Location = new Point(3, 7);
             searchTextBox.Name = "searchTextBox";
             searchTextBox.Size = new Size(522, 23);
             searchTextBox.TabIndex = 1;
@@ -189,7 +166,7 @@
             searchListBox.ItemHeight = 15;
             searchListBox.Location = new Point(3, 43);
             searchListBox.Name = "searchListBox";
-            searchListBox.Size = new Size(757, 409);
+            searchListBox.Size = new Size(750, 349);
             searchListBox.TabIndex = 0;
             searchListBox.SelectedIndexChanged += listBox2_SelectedIndexChanged;
             // 
@@ -208,9 +185,9 @@
             // 
             // RemoveFromCart
             // 
-            RemoveFromCart.Location = new Point(630, 257);
+            RemoveFromCart.Location = new Point(501, 3);
             RemoveFromCart.Name = "RemoveFromCart";
-            RemoveFromCart.Size = new Size(123, 68);
+            RemoveFromCart.Size = new Size(123, 39);
             RemoveFromCart.TabIndex = 2;
             RemoveFromCart.Text = "Remove";
             RemoveFromCart.UseVisualStyleBackColor = true;
@@ -218,9 +195,9 @@
             // 
             // EnrollButton
             // 
-            EnrollButton.Location = new Point(630, 331);
+            EnrollButton.Location = new Point(630, 3);
             EnrollButton.Name = "EnrollButton";
-            EnrollButton.Size = new Size(123, 66);
+            EnrollButton.Size = new Size(123, 39);
             EnrollButton.TabIndex = 1;
             EnrollButton.Text = "Confirm Enroll";
             EnrollButton.UseVisualStyleBackColor = true;
@@ -230,9 +207,9 @@
             // 
             shoppingCartList.FormattingEnabled = true;
             shoppingCartList.ItemHeight = 15;
-            shoppingCartList.Location = new Point(3, 3);
+            shoppingCartList.Location = new Point(3, 48);
             shoppingCartList.Name = "shoppingCartList";
-            shoppingCartList.Size = new Size(621, 394);
+            shoppingCartList.Size = new Size(750, 349);
             shoppingCartList.TabIndex = 0;
             shoppingCartList.SelectedIndexChanged += shoppingCartList_SelectedIndexChanged;
             // 
@@ -284,6 +261,16 @@
             applyFilter.UseVisualStyleBackColor = true;
             applyFilter.Click += button1_Click_1;
             // 
+            // dropClassButton
+            // 
+            dropClassButton.Location = new Point(630, 3);
+            dropClassButton.Name = "dropClassButton";
+            dropClassButton.Size = new Size(123, 27);
+            dropClassButton.TabIndex = 3;
+            dropClassButton.Text = "Drop Class";
+            dropClassButton.UseVisualStyleBackColor = true;
+            dropClassButton.Click += button1_Click_2;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -328,10 +315,9 @@
         private Label MyCoursesHeading;
         private Button viewCourseButton;
         private ListBox courseInfoListBox;
-        private Button closeButton;
-        private Label courseInfoLabel;
         private Button EnrollButton;
         private Button Remove;
         private Button RemoveFromCart;
+        private Button dropClassButton;
     }
 }

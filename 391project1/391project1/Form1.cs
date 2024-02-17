@@ -15,16 +15,24 @@ namespace _391project1
 {
     public partial class Form1 : Form
     {
+        // Modify this depending on the database being used
+        // For the remote database, the string is probably:
+        // "Data Source = 206.75.31.209,11433 Initial Catalog = MacewanDatabase; Integrated Security = True; MultipleActiveResultSets = true;"
+        private readonly string connectionString =
+            "Data Source = localhost; Initial Catalog = MacewanDatabase; Integrated Security = True; MultipleActiveResultSets = true;";
+
         public Form1()
         {
             InitializeComponent();
-            courseInfoLabel.Visible = false;
 
-            //fillCourses();
+            courseInfoListBox.Visible = true;
+
             fillSemBox();
             fillYearBox();
-            courseInfoLabel.AutoSize = true;
-            courseInfoLabel.MaximumSize = new Size(475, 775);
+
+            listBox1.SelectedIndexChanged += ListBox_SelectionChanged;
+            searchListBox.SelectedIndexChanged += ListBox_SelectionChanged;
+            shoppingCartList.SelectedIndexChanged += ListBox_SelectionChanged;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -66,7 +74,8 @@ namespace _391project1
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            courseInfoLabel.Visible = false;
+            //courseInfoLabel.Visible = false;
+            showCourseInfo();
         }
 
         private int semIdx = -1;
@@ -75,8 +84,7 @@ namespace _391project1
         private void fillSemBox()
         {
             SqlConnection con =
-                new SqlConnection(
-                    "Data Source = localhost; Initial Catalog = MacewanDatabase; Integrated Security = True; MultipleActiveResultSets = true; ");
+                new SqlConnection(connectionString);
             SqlCommand SelectCommand = new SqlCommand("SELECT distinct semester FROM section", con);
             SqlDataReader myreader;
             con.Open();
@@ -102,39 +110,44 @@ namespace _391project1
         {
             try
             {
-                using (SqlConnection con = new SqlConnection("Data Source=localhost; Initial Catalog=391project1; Integrated Security=True; MultipleActiveResultSets=true;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
                     SqlCommand SelectCommand = new SqlCommand(query, con);
                     using (SqlDataReader myreader = SelectCommand.ExecuteReader())
                     {
-                        Debug.WriteLine("***********");
-
-                        // should have exactly one result. error check later uhhhhhh
-                        while (myreader.Read())
+                        if (myreader.Read())
                         {
-                            string item = myreader[0].ToString();
-                            Debug.WriteLine("***********" + item);
-                            if (item != null) { return item; }
-                            else return ("-1");
+                            return myreader[0].ToString();
+                        }
+                        else
+                        {
+                            Debug.WriteLine("No results found for query: " + query);
+                            return "-1";
                         }
                     }
-                    return "-1";
                 }
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"SQL Error: {ex.Message}");
+                MessageBox.Show($"SQL Error: {ex.Message}");
+                return "-1";
             }
             catch (Exception ex)
             {
-                // Handle exceptions or log errors appropriately
-                MessageBox.Show("An 3 error occurred: " + ex.Message);
-                return ("-1");
+                Debug.WriteLine($"Error: {ex.Message}");
+                MessageBox.Show($"Error: {ex.Message}");
+                return "-1";
             }
         }
-        
+
+
         private Boolean checkCart(string query)
         {
             try
             {
-                using (SqlConnection con = new SqlConnection("Data Source=localhost; Initial Catalog=391project1; Integrated Security=True; MultipleActiveResultSets=true;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
                     SqlCommand SelectCommand = new SqlCommand(query, con);
@@ -177,7 +190,8 @@ namespace _391project1
             str[4] = raw[raw.Length - 8]; //cap
             str[3] = raw[raw.Length - 9]; //enrolled
             str[2] = raw[raw.Length - 10]; //section
-            str[1] = raw[raw.Length - 11]; // course desc. will only be containing last word, as it is uneeded for my use
+            str[1] = raw[
+                raw.Length - 11]; // course desc. will only be containing last word, as it is uneeded for my use
             // change later if needed
 
             return str;
@@ -186,8 +200,7 @@ namespace _391project1
         private void fillYearBox()
         {
             SqlConnection con =
-                new SqlConnection(
-                    "Data Source = localhost; Initial Catalog = MacewanDatabase; Integrated Security = True; MultipleActiveResultSets = true; ");
+                new SqlConnection(connectionString);
             SqlCommand SelectCommand = new SqlCommand("SELECT distinct year FROM section ORDER BY year DESC;", con);
             SqlDataReader myreader;
             con.Open();
@@ -214,9 +227,7 @@ namespace _391project1
             try
             {
                 string act = "active";
-                SqlConnection con =
-                    new SqlConnection(
-                        "Data Source = localhost; Initial Catalog = MacewanDatabase; Integrated Security = True; MultipleActiveResultSets = true; ");
+                SqlConnection con = new SqlConnection(connectionString);
                 SqlCommand SelectCommand = new SqlCommand("showMyCourses", con);
                 SelectCommand.CommandType = CommandType.StoredProcedure;
                 SelectCommand.Parameters.AddWithValue("@studentID", UserLogin.GlobalVariables.userID.ToString());
@@ -261,8 +272,7 @@ namespace _391project1
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(
-                           "Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True; MultipleActiveResultSets=true;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     using (SqlCommand SelectCommand = new SqlCommand("showMyCart", con))
                     {
@@ -279,9 +289,9 @@ namespace _391project1
                             // Read and add each course
                             while (myreader.Read())
                             {
-                                string courseEntry = myreader[0].ToString() + " " +
-                                                     myreader[1].ToString() + " " +
-                                                     myreader[2].ToString() + " " +
+                                string courseEntry = myreader[0].ToString() + " | " +
+                                                     myreader[1].ToString() + " | " +
+                                                     myreader[2].ToString() + " | " +
                                                      myreader[3].ToString();
                                 shoppingCartList.Items.Add(courseEntry);
                             }
@@ -299,9 +309,7 @@ namespace _391project1
         {
             try
             {
-                using (SqlConnection con =
-                       new SqlConnection(
-                           "Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     using (SqlCommand cmd = new SqlCommand("viewAvailableCourses", con))
                     {
@@ -317,13 +325,6 @@ namespace _391project1
                             List<string> courseDetails = new List<string>();
                             while (reader.Read())
                             {
-                                /* string courseDetail = $"{reader["courseID"].ToString().Trim()}: " +
-                                                      $"{reader["courseName"].ToString().Trim()} " +
-                                                      $"({reader["sectionID"].ToString().Trim()}) " +
-                                                      $"\t{reader["semester"].ToString().Trim()} " +
-                                                      $"{reader["year"].ToString().Trim()}" +
-                                                      $"\tCapacity: {reader["capacity"].ToString().Trim()}, " +
-                                                      $"\tEnrolled: {reader["enrolledCount"].ToString().Trim()}"; */
                                 string courseDetail = $"{reader["courseID"].ToString().Trim()} " +
                                                       $"| {reader["courseName"].ToString().Trim()} " +
                                                       $"| {reader["sectionID"].ToString().Trim()} " +
@@ -350,37 +351,55 @@ namespace _391project1
             }
         }
 
-        /* private void AddCourseToCart(string courseID, string sectionID)
-           {
-               try
-               {
-                   using (SqlConnection con = new SqlConnection("Your_Connection_String"))
-                   {
-                       using (SqlCommand cmd = new SqlCommand("addToCart", con))
-                       {
-                           cmd.CommandType = CommandType.StoredProcedure;
-                           cmd.Parameters.AddWithValue("@studentID", UserLogin.GlobalVariables.userID);
-                           cmd.Parameters.AddWithValue("@courseID", courseID);
-                           cmd.Parameters.AddWithValue("@sectionID", sectionID);
-
-                           con.Open();
-                           cmd.ExecuteNonQuery();
-                       }
-                   }
-                   MessageBox.Show("Course added to cart successfully.");
-               }
-               catch (Exception ex)
-               {
-                   MessageBox.Show($"An error occurred while adding to cart: {ex.Message}");
-               }
-           } */
-
         private void addCourseToCart(string studentID, string courseID, string sectionID, string semester, string year)
         {
             try
             {
-                using (SqlConnection con = new SqlConnection(
-                           "Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True; MultipleActiveResultSets=true;"))
+                // Check for time slot conflicts
+                string timeSlotQuery =
+                    $"SELECT timeSlotID FROM section WHERE courseID = '{courseID}' AND sectionID = '{sectionID}'";
+                string newTimeSlotID = getTimeSlotID(timeSlotQuery);
+                if (HasTimeSlotConflict(studentID, newTimeSlotID, semester, year))
+                {
+                    MessageBox.Show("Cannot add this course to cart due to a schedule conflict.");
+                    return;
+                }
+
+                // Check for prerequisite completion
+                List<string> prerequisiteCourseIDs = GetPrerequisiteCourseIDs(courseID);
+                foreach (string prereqCourseID in prerequisiteCourseIDs)
+                {
+                    if (!HasStudentCompletedCourse(studentID, prereqCourseID))
+                    {
+                        MessageBox.Show($"You have not completed the prerequisite course: {prereqCourseID}");
+                        return;
+                    }
+                }
+
+                // Check if course already exists in cart
+                string checkCartQuery = "SELECT COUNT(*) FROM cart WHERE studentID = @studentID AND courseID = @courseID AND sectionID = @sectionID AND semester = @semester AND year = @year";
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+                    using (SqlCommand cmd = new SqlCommand(checkCartQuery, con))
+                    {
+                        cmd.Parameters.AddWithValue("@studentID", studentID);
+                        cmd.Parameters.AddWithValue("@courseID", courseID);
+                        cmd.Parameters.AddWithValue("@sectionID", sectionID);
+                        cmd.Parameters.AddWithValue("@semester", semester);
+                        cmd.Parameters.AddWithValue("@year", year);
+
+                        int existingCount = (int)cmd.ExecuteScalar();
+                        if (existingCount > 0)
+                        {
+                            MessageBox.Show("Course already exists in your cart.");
+                            return;
+                        }
+                    }
+                }
+
+                // Add to the cart
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     using (SqlCommand cmd = new SqlCommand("addToCart", con))
                     {
@@ -392,17 +411,17 @@ namespace _391project1
                         cmd.Parameters.AddWithValue("@year", year);
 
                         con.Open();
-                        cmd.ExecuteNonQuery(); // Executes synchronously
+                        cmd.ExecuteNonQuery();
+                        MessageBox.Show("Course added to cart successfully.");
                     }
-                } // Using block ensures that connection is closed properly
-
-                MessageBox.Show("Course added to cart successfully.");
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred while adding the course to cart: {ex.Message}");
             }
         }
+
 
 
         private void button1_Click(object sender, EventArgs e) // Add to cart button
@@ -419,7 +438,7 @@ namespace _391project1
             string[] components = selectedCourse.Split(new[] { " | " }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(p => p.Trim())
                 .ToArray();
-            
+
             if (components.Length >= 6)
             {
                 string courseID = components[0];
@@ -500,81 +519,18 @@ namespace _391project1
             }
         }
 
-
-        private void searchListBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            string curItem = searchListBox.SelectedItem.ToString();
-            if (curItem != null)
-            {
-                DialogResult dialogResult = MessageBox.Show("Attempt to add this course to your cart?", "",
-                    MessageBoxButtons.YesNo);
-
-                if (dialogResult == DialogResult.Yes)
-                {
-                    Debug.WriteLine(curItem);
-                    // run queries
-
-                    // first need to split retreived strings to handle each condition properly
-                    string[] rawStr = curItem.Split(' ');
-                    string[] splitStr = formatSearchClick(rawStr);
-
-                    // check if there is even space
-                    if ((Int32.Parse(splitStr[3]) + 1) > Int32.Parse(splitStr[4]))
-                    {
-                        // no space
-                        MessageBox.Show("Selected class has no available space.");
-                    }
-                    else
-                    {
-                        // find slot id to match classes in cart
-                        string query = "SELECT timeSlot.timeSlotID FROM timeSlot WHERE timeSlot.day = '" + splitStr[5] +
-                                       "' AND timeSlot.startTime = '" + splitStr[8] + "' AND timeSlot.endTime = '" +
-                                       splitStr[9] + "'";
-                        string timeID = getTimeSlotID(query);
-                        if (timeID == "-1")
-                        {
-                            // couldnt find slot
-                            return;
-                        }
-
-                        // run q on cart
-                        query = "SELECT * FROM cart WHERE cart.timeSlotID = '" + timeID + "' AND cart.year = '" +
-                                splitStr[11] + "' AND cart.semester = '" + splitStr[10] + "' AND cart.studentID = '" +
-                                UserLogin.GlobalVariables.userID.ToString() + "'";
-
-                        // if not zero results, run stored proc to add this class to cart
-                        if (!checkCart(query))
-                        {
-                            // cant add to cart, display message
-                            MessageBox.Show("Class could not be added to cart.");
-                        }
-                        else
-                        {
-                            // add checking prereqs????? 
-
-                            addCourseToCart(splitStr[0], splitStr[1], splitStr[2], splitStr[10], splitStr[11]);
-                        }
-                    }
-                }
-                else if (dialogResult == DialogResult.No) return;
-            }
-            else return;
-        }
-
         private void viewCourseButton_Click(object sender, EventArgs e)
         {
             if (yrIdx != -1 & semIdx != -1)
             {
-                courseInfoLabel.Visible = true;
                 courseInfoListBox.Visible = true;
-                closeButton.Visible = true;
-                closeButton.BringToFront();
                 showCourseInfo();
             }
 
         }
 
-        private void enrollStudentIntoCourse(string studentID, string courseID, string sectionID, string semester, string year)
+        private void enrollStudentIntoCourse(string studentID, string courseID, string sectionID, string semester,
+            string year)
         {
             try
             {
@@ -584,73 +540,20 @@ namespace _391project1
                 Debug.WriteLine($"Semester: {semester}");
                 Debug.WriteLine($"Year: {year}");
 
-                // Time conflicts
-                string timeSlotQuery = $"SELECT timeSlotID FROM section WHERE courseID = '{courseID}' AND sectionID = '{sectionID}'";
-                string newTimeSlotID = getTimeSlotID(timeSlotQuery);
-                if (HasTimeSlotConflict(studentID, newTimeSlotID, semester, year))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
-                    MessageBox.Show("Cannot enroll in this course due to a schedule conflict.");
-                    return;
-                }
-
-                ListCoursePrerequisites(courseID);
-                List<string> prerequisiteCourseIDs = GetPrerequisiteCourseIDs(courseID);
-
-                bool hasCompletedAllPrerequisites = true;
-                foreach (string prereqCourseID in prerequisiteCourseIDs)
-                {
-                    if (!HasStudentCompletedCourse(studentID, prereqCourseID))
-                    {
-                        Debug.WriteLine($"Student has not completed prerequisite course: {prereqCourseID}");
-                        hasCompletedAllPrerequisites = false;
-                        break;
-                    }
-                }
-
-                if (!hasCompletedAllPrerequisites)
-                {
-                    MessageBox.Show("Student has not completed all prerequisite courses.");
-                    return;
-                }
-
-                using (SqlConnection con = new SqlConnection("Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True; MultipleActiveResultSets=true;"))
-                {
-                    // Check prerequisites
-                    using (SqlCommand checkPrereqCmd = new SqlCommand("CheckPrerequisites", con))
-                    {
-                        checkPrereqCmd.CommandType = CommandType.StoredProcedure;
-                        checkPrereqCmd.Parameters.AddWithValue("@studentID", studentID);
-                        checkPrereqCmd.Parameters.AddWithValue("@courseID", courseID);
-                        SqlParameter prerequisiteMetParam = new SqlParameter("@prerequisiteMet", SqlDbType.Bit);
-                        prerequisiteMetParam.Direction = ParameterDirection.Output;
-                        checkPrereqCmd.Parameters.Add(prerequisiteMetParam);
-
-                        con.Open();
-                        checkPrereqCmd.ExecuteNonQuery();
-
-                        // Check if prerequisites are met
-                        bool prerequisiteMet = (bool)checkPrereqCmd.Parameters["@prerequisiteMet"].Value;
-
-                        if (!prerequisiteMet)
-                        {
-                            Debug.WriteLine($"Prerequisites for CourseID: {courseID}");
-                            ListCoursePrerequisites(courseID);
-                            
-                            MessageBox.Show("You do not have the required prerequisites to enroll in this course.");
-                            return;
-                        }
-                    }
-
-                    string query = "INSERT INTO [dbo].[takes] ([studentID], [courseID], [sectionID], [semester], [year], [grade], [active]) " +
-                                   "VALUES (@studentID, @courseID, @sectionID, @semester, @year, NULL, 'ACTIVE')";
+                    string query =
+                        "INSERT INTO [dbo].[takes] ([studentID], [courseID], [sectionID], [semester], [year], [grade], [active]) " +
+                        "VALUES (@studentID, @courseID, @sectionID, @semester, @year, NULL, 'ACTIVE')";
                     using (SqlCommand enrollCmd = new SqlCommand(query, con))
                     {
                         enrollCmd.Parameters.AddWithValue("@studentID", studentID);
-                        enrollCmd.Parameters.AddWithValue("@courseID", courseID.Trim().Replace("\u00A0", " "));
+                        enrollCmd.Parameters.AddWithValue("@courseID", courseID);
                         enrollCmd.Parameters.AddWithValue("@sectionID", sectionID);
                         enrollCmd.Parameters.AddWithValue("@semester", semester);
                         enrollCmd.Parameters.AddWithValue("@year", year);
 
+                        con.Open();
                         enrollCmd.ExecuteNonQuery();
                     }
                 }
@@ -672,14 +575,14 @@ namespace _391project1
 
             try
             {
-                using (SqlConnection con = new SqlConnection("Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True; MultipleActiveResultSets=true;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
                     string query = "SELECT prereqID FROM prereq WHERE courseID = @courseID";
 
                     using (SqlCommand cmd = new SqlCommand(query, con))
                     {
-                        cmd.Parameters.AddWithValue("@courseID", courseID.Trim().Replace("\u00A0", " "));
+                        cmd.Parameters.AddWithValue("@courseID", courseID.Trim().Replace("\u00A0", " ")); // get rid of bullshit
 
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
@@ -707,14 +610,16 @@ namespace _391project1
         }
 
 
+        // Used for debugging, not needed
         private void ListCoursePrerequisites(string courseID)
         {
             try
             {
-                using (SqlConnection con = new SqlConnection("Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True; MultipleActiveResultSets=true;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
-                    using (SqlCommand cmd = new SqlCommand("SELECT prereqID FROM prereq WHERE courseID = @courseID", con))
+                    using (SqlCommand cmd = new SqlCommand("SELECT prereqID FROM prereq WHERE courseID = @courseID",
+                               con))
                     {
                         cmd.Parameters.AddWithValue("@courseID", courseID.Trim().Replace("\u00A0", " "));
 
@@ -724,7 +629,7 @@ namespace _391project1
                             {
                                 while (reader.Read())
                                 {
-                                    string prerequisite = reader.GetString(0).Trim(); // Assuming prereqID is also nchar(10)
+                                    string prerequisite = reader.GetString(0).Trim();
                                     Debug.WriteLine($"Prerequisite: {prerequisite}");
                                 }
                             }
@@ -754,10 +659,11 @@ namespace _391project1
 
             try
             {
-                using (SqlConnection con = new SqlConnection("Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True; MultipleActiveResultSets=true;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
-                    string query = "SELECT COUNT(1) FROM takes WHERE studentID = @studentID AND courseID = @courseID AND grade IS NOT NULL"; 
+                    string query =
+                        "SELECT COUNT(1) FROM takes WHERE studentID = @studentID AND courseID = @courseID AND grade IS NOT NULL";
 
                     using (SqlCommand cmd = new SqlCommand(query, con))
                     {
@@ -787,19 +693,19 @@ namespace _391project1
         {
             try
             {
-                using (SqlConnection con = new SqlConnection("Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True; MultipleActiveResultSets=true;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
 
                     // Check for conflict in currently enrolled courses
                     string queryEnrolled = @"
-                SELECT COUNT(1)
-                FROM takes
-                INNER JOIN section ON takes.courseID = section.courseID AND takes.sectionID = section.sectionID
-                WHERE takes.studentID = @studentID
-                AND section.timeSlotID = @timeSlotID
-                AND takes.semester = @semester
-                AND takes.year = @year";
+                        SELECT COUNT(1)
+                        FROM takes
+                        INNER JOIN section ON takes.courseID = section.courseID AND takes.sectionID = section.sectionID
+                        WHERE takes.studentID = @studentID
+                        AND section.timeSlotID = @timeSlotID
+                        AND takes.semester = @semester
+                        AND takes.year = @year";
 
                     using (SqlCommand cmdEnrolled = new SqlCommand(queryEnrolled, con))
                     {
@@ -817,13 +723,13 @@ namespace _391project1
 
                     // Check for conflict in the course cart
                     string queryCart = @"
-                SELECT COUNT(1)
-                FROM cart
-                INNER JOIN section ON cart.courseID = section.courseID AND cart.sectionID = section.sectionID
-                WHERE cart.studentID = @studentID
-                AND section.timeSlotID = @timeSlotID
-                AND cart.semester = @semester
-                AND cart.year = @year";
+                        SELECT COUNT(1)
+                        FROM cart
+                        INNER JOIN section ON cart.courseID = section.courseID AND cart.sectionID = section.sectionID
+                        WHERE cart.studentID = @studentID
+                        AND section.timeSlotID = @timeSlotID
+                        AND cart.semester = @semester
+                        AND cart.year = @year";
 
                     using (SqlCommand cmdCart = new SqlCommand(queryCart, con))
                     {
@@ -856,11 +762,12 @@ namespace _391project1
 
 
 
-        private void RemoveCourseFromCart(string studentID, string courseID, string sectionID, string semester, string year)
+        private void RemoveCourseFromCart(string studentID, string courseID, string sectionID, string semester,
+            string year)
         {
             try
             {
-                using (SqlConnection con = new SqlConnection("Data Source=localhost; Initial Catalog=MacewanDatabase; Integrated Security=True; MultipleActiveResultSets=true;"))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     using (SqlCommand cmd = new SqlCommand("removeFromCart", con))
                     {
@@ -886,74 +793,66 @@ namespace _391project1
 
         private void showCourseInfo()
         {
+            ListBox currentListBox = GetCurrentListBox();
 
-            if (listBox1.SelectedIndex == -1)
+            if (comboBoxYear.SelectedIndex == -1)
             {
-                MessageBox.Show("Please select a course from the list.");
+                MessageBox.Show("Please select a year.");
                 return;
             }
 
             try
             {
-                string selectedCourseInfo = listBox1.SelectedItem.ToString();
-                string[] parts = selectedCourseInfo.Split('|');
+                var selectedItem = currentListBox.SelectedItem.ToString(); // Get the current selection based on the current listbox
+                var (courseID, sectionID, semester) = ParseSelectedItem(selectedItem);
+                var year = comboBoxYear.SelectedItem.ToString().Trim(); // Using the selected year from comboBoxYear
 
-                if (parts.Length < 4)
-                {
-                    MessageBox.Show("Unexpected format");
-                }
+                Debug.WriteLine($"Parsed Course ID: {courseID}");
+                Debug.WriteLine($"Parsed Section ID: {sectionID}");
+                Debug.WriteLine($"Parsed Semester: {semester}");
+                Debug.WriteLine($"Selected Year: {year}");
 
-                string courseID = parts[0].Trim();
-                string sectionID = parts[1].Trim();
-                string semester = parts[2].Trim();
-                string year = parts[3].Trim();
-
-                List<string> course1 = new List<string>();
-                List<string> course2 = new List<string>();
-                List<string> course3 = new List<string>();
-
-                using (SqlConnection con = new SqlConnection(
-                           "Data Source = localhost; Initial Catalog = MacewanDatabase; Integrated Security = True; MultipleActiveResultSets = true; "))
+                using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     using (SqlCommand SelectCommand = new SqlCommand("getCourseInfo", con))
                     {
                         SelectCommand.CommandType = CommandType.StoredProcedure;
-                        SelectCommand.Parameters.AddWithValue("@semester", semester);
-                        SelectCommand.Parameters.AddWithValue("@year", year);
                         SelectCommand.Parameters.AddWithValue("@courseID", courseID);
                         SelectCommand.Parameters.AddWithValue("@sectionID", sectionID);
-                        con.Open();
+                        SelectCommand.Parameters.AddWithValue("@semester", semester);
+                        SelectCommand.Parameters.AddWithValue("@year", year);
 
+                        con.Open();
                         using (SqlDataReader myreader = SelectCommand.ExecuteReader())
                         {
-                            if (!myreader.HasRows)
+                            if (myreader.Read())
                             {
-                                MessageBox.Show("No course info");
-                                return;
-                            }
+                                courseInfoListBox.Items.Clear();
 
-                            // Clear previous courses
-                            courseInfoListBox.Items.Clear();
-                            while (myreader.Read())
-                            {
-                                if (myreader.FieldCount < 9)
-                                {
-                                    MessageBox.Show("Data received does not match the expected format");
-                                    return;
-                                }
-                                /*course1.Add(myreader[0].ToString() + "     " + myreader[1].ToString() + "     Enrolled: " + myreader[2].ToString() + " Capacity:     " + myreader[3].ToString());
-                                course2.Add("Day: " + myreader[4].ToString() + "     Start Time: " + myreader[5].ToString() + "     End Time: " + myreader[6].ToString());
-                                course3.Add("Instructor Name: " + myreader[7].ToString() + " " + myreader[8].ToString()); */
+                                string status =
+                                    Convert.ToInt32(myreader["enrolledCount"].ToString().Trim()) <
+                                    Convert.ToInt32(myreader["capacity"].ToString().Trim())
+                                        ? "Open"
+                                        : "Closed";
 
                                 string courseDetail =
-                                    $"{myreader.GetString(0)} | Enrolled: {myreader.GetString(2)} | Capacity: {myreader.GetString(3)}";
+                                    $"{myreader["courseID"].ToString().Trim()} - {myreader["courseName"].ToString().Trim()}";
+                                string daysAndTimes =
+                                    $"Days and Times: {myreader["day"].ToString().Trim()}, {myreader.GetTimeSpan(myreader.GetOrdinal("startTime")).ToString()} to {myreader.GetTimeSpan(myreader.GetOrdinal("endTime")).ToString()}";
+                                string instructor = $"Instructor: {myreader["instructorName"].ToString().Trim()}";
+                                string seats =
+                                    $"Seats: {myreader["enrolledCount"].ToString().Trim()} of {myreader["capacity"].ToString().Trim()}";
+                                string courseStatus = $"Status: {status}";
+
                                 courseInfoListBox.Items.Add(courseDetail);
-                                string timeDetail =
-                                    $"Day: {myreader.GetString(4)} | Start Time: {myreader.GetTimeSpan(5)} | End Time: {myreader.GetTimeSpan(6)}";
-                                courseInfoListBox.Items.Add(timeDetail);
-                                string instructorDetail =
-                                    $"Instructor Name: {myreader.GetString(7)} {myreader.GetString(8)}";
-                                courseInfoListBox.Items.Add(instructorDetail);
+                                courseInfoListBox.Items.Add(daysAndTimes);
+                                courseInfoListBox.Items.Add(instructor);
+                                courseInfoListBox.Items.Add(seats);
+                                courseInfoListBox.Items.Add(courseStatus);
+                            }
+                            else
+                            {
+                                MessageBox.Show("No course info found.");
                             }
                         }
                     }
@@ -961,9 +860,25 @@ namespace _391project1
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"An error occurred while showing course info: {ex.Message}");
+                MessageBox.Show($"An error occurred: {ex.Message}");
             }
         }
+
+
+
+        private (string courseID, string sectionID, string semester) ParseSelectedItem(string selectedItem)
+        {
+            string[] parts = selectedItem.Split(new[] { " | " }, StringSplitOptions.RemoveEmptyEntries);
+
+            string courseID = parts.Length > 0 ? parts[0] : string.Empty;
+            string sectionID = parts.Length > 2 ? parts[2] : string.Empty;
+            string semester = parts.Length > 3 ? parts[3] : string.Empty;
+
+            return (courseID, sectionID, semester);
+        }
+
+
+
 
         private void courseInfoListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -972,8 +887,7 @@ namespace _391project1
 
         private void closeButton_Click(object sender, EventArgs e)
         {
-            courseInfoListBox.Visible = false;
-            closeButton.Visible = false;
+            // courseInfoListBox.Visible = false;
             courseInfoListBox.Items.Clear();
         }
 
@@ -1015,6 +929,7 @@ namespace _391project1
                     MessageBox.Show(
                         "Invalid course format selected. Please ensure the course information is in the expected format.");
                 }
+
                 showCurrentCourses();
             }
         }
@@ -1029,7 +944,7 @@ namespace _391project1
                     string[] components = selectedCourse.Split(new[] { "   " }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(p => p.Trim())
                         .ToArray();
-                    
+
                     if (components.Length >= 4)
                     {
                         string studentID = UserLogin.GlobalVariables.userID.ToString();
@@ -1058,6 +973,45 @@ namespace _391project1
                 MessageBox.Show("Please select a course to remove from the cart.");
             }
         }
+
+        private ListBox GetCurrentListBox()
+        {
+            if (listBox1.Visible)
+            {
+                return listBox1;
+            }
+            else if (searchListBox.Visible)
+            {
+                return searchListBox;
+            }
+            else if (shoppingCartList.Visible)
+            {
+                return shoppingCartList;
+            }
+            else
+            {
+                return listBox1;
+            }
+        }
+
+        private void button1_Click_2(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MyCoursesHeading_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPageCart_Click_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ListBox_SelectionChanged(object sender, EventArgs e)
+        {
+            showCourseInfo();
+        }
     }
 }
-
