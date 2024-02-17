@@ -42,8 +42,8 @@ namespace _391project1
                 if (check == 1)
                 {
                     GlobalVariables.userID = userID;
-                    Form1 form1 = new Form1();
-                    form1.Show();
+                    MacEwanEnrollmentSystem macEwanEnrollmentSystem = new MacEwanEnrollmentSystem();
+                    macEwanEnrollmentSystem.Show();
                     this.Hide();
                 }
                 else
@@ -76,6 +76,11 @@ namespace _391project1
                 }
             }
             return result;
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -118,7 +118,6 @@ C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391p
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\bin\Debug\net6.0-windows\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\bin\Debug\net6.0-windows\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\391project1.csproj.AssemblyReference.cache
-C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\_391project1.Form1.resources
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\_391project1.login.resources
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\_391project1.Properties.Resources.resources
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\_391project1.UserLogin.resources
@@ -134,3 +133,4 @@ C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391p
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\391project1.pdb
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\391project1.genruntimeconfig.cache
 C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\ref\391project1.dll
+C:\Users\abmar\Documents\School\Winter_2024\cmpt391\Project\project1CMPT391\391project1\391project1\obj\Debug\net6.0-windows\_391project1.MacEwanEnrollmentSystem.resources

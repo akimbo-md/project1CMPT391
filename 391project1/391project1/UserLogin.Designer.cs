@@ -35,18 +35,18 @@
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(324, 323);
-            textBox1.Margin = new Padding(4, 4, 4, 4);
+            textBox1.Location = new Point(94, 104);
+            textBox1.Margin = new Padding(2);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(359, 35);
+            textBox1.Size = new Size(211, 23);
             textBox1.TabIndex = 0;
             // 
             // loginBtn
             // 
-            loginBtn.Location = new Point(370, 392);
-            loginBtn.Margin = new Padding(4, 4, 4, 4);
+            loginBtn.Location = new Point(94, 131);
+            loginBtn.Margin = new Padding(2);
             loginBtn.Name = "loginBtn";
-            loginBtn.Size = new Size(134, 41);
+            loginBtn.Size = new Size(211, 35);
             loginBtn.TabIndex = 2;
             loginBtn.Text = "Login";
             loginBtn.UseVisualStyleBackColor = true;
@@ -55,22 +55,23 @@
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(205, 326);
-            label1.Margin = new Padding(4, 0, 4, 0);
+            label1.Location = new Point(94, 87);
+            label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new Size(86, 30);
+            label1.Size = new Size(47, 15);
             label1.TabIndex = 3;
             label1.Text = "User ID:";
+            label1.Click += label1_Click;
             // 
             // UserLogin
             // 
-            AutoScaleDimensions = new SizeF(12F, 30F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(934, 773);
+            ClientSize = new Size(394, 269);
             Controls.Add(label1);
             Controls.Add(loginBtn);
             Controls.Add(textBox1);
-            Margin = new Padding(4, 4, 4, 4);
+            Margin = new Padding(2);
             Name = "UserLogin";
             Text = "UserLogin";
             Load += UserLogin_Load;
